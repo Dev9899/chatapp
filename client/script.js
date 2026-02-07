@@ -7,9 +7,7 @@ const usernameInput = document.getElementById("username");
 const sendButton = document.getElementById("send");
 const saveUsernameBtn = document.getElementById("saveusernamebtn");
 
-// 1️⃣ INIT APP
 async function init() {
-  // Check session first
   const res = await fetch("/session", { credentials: "same-origin" });
   const data = await res.json();
 
@@ -24,7 +22,6 @@ async function init() {
 
 init();
 
-// 2️⃣ SAVE USERNAME (HTTP)
 saveUsernameBtn.addEventListener("click", async () => {
   const value = usernameInput.value.trim();
   if (!value) return;
@@ -42,7 +39,6 @@ saveUsernameBtn.addEventListener("click", async () => {
   connectSocket();
 });
 
-// 3️⃣ CONNECT SOCKET
 function connectSocket() {
   socket = io();
 
@@ -52,7 +48,6 @@ function connectSocket() {
   socket.on("chat-message", addChatMessage);
 }
 
-// 4️⃣ SEND MESSAGE
 sendButton.onclick = () => {
   const message = messageInput.value.trim();
   if (!message) return;
@@ -69,7 +64,6 @@ messageInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendButton.click();
 });
 
-// 5️⃣ UI HELPERS
 function addChatMessage(data) {
   const div = document.createElement("div");
   div.classList.add("message");

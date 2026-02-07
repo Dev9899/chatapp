@@ -66,6 +66,11 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("chat-message", (data) => {
+    io.emit("chat-message", data);
+  });
+
+
   socket.on("disconnect", () => {
     if (socket.username) {
       io.emit("system-message", {
