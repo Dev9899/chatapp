@@ -45,3 +45,10 @@ body {
 button {
   padding: 5px 10px;
 }
+
+.system-message {
+  text-align: center;
+  color: #666;
+  font-size: 0.9em;
+  margin: 5px 0;
+}

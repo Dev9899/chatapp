@@ -1,4 +1,5 @@
 const socket = io();
+let hasJoined = false;
 
 const messagesDiv = document.getElementById("messages");
 const messageInput = document.getElementById("message");
@@ -16,10 +17,25 @@ socket.on("chat-message", (data) => {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 
+socket.on("system-message", (data) => {
+  const div = document.createElement("div");
+  div.classList.add("system-message");
+  div.textContent = data.message;
+
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+});
+
+
 // Send message
 sendButton.onclick = () => {
   const message = messageInput.value;
   const username = usernameInput.value || "Anonymous";
+
+  if (!hasJoined) {
+    socket.emit("join", username);
+    hasJoined = true;
+  }
 
   if (!message) return;
 
@@ -30,6 +46,7 @@ sendButton.onclick = () => {
 
   messageInput.value = "";
 };
+
 
 // Send on Enter
 messageInput.addEventListener("keypress", (e) => {
