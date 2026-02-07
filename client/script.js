@@ -1,81 +1,97 @@
-const socket = io();
-let hasJoined = false;
+let socket;
+let username = null;
 
 const messagesDiv = document.getElementById("messages");
 const messageInput = document.getElementById("message");
 const usernameInput = document.getElementById("username");
 const sendButton = document.getElementById("send");
-const saveUsernameBtn = document.getElementById('saveusernamebtn');
-const savedUsername =localStorage.getItem('chatappUsername')
-let username;
+const saveUsernameBtn = document.getElementById("saveusernamebtn");
 
-if (saveUsernameBtn) {
-    username = saveUsernameBtn;
-    usernameInput.disabled = true;
-    document.querySelector('.modal').style.display = 'none';
-    document.querySelector('.modalback').style.display = 'none';
+// 1️⃣ INIT APP
+async function init() {
+  // Check session first
+  const res = await fetch("/session", { credentials: "same-origin" });
+  const data = await res.json();
 
-    socket.emit('join', savedUsername);
-    hasJoined = true;
-} else {
-    saveUsernameBtn.addEventListener('click', () => {
-        username = usernameInput.value.trim();
-        if (!username || hasJoined) return;
-
-        localStorage.setItem('chatappUsername', username);
-        socket.emit('join', username)
-        hasJoined = true;
-        usernameInput.disabled = true;
-        document.querySelector('.modal').style.display = 'none';
-        document.querySelector('.modalback').style.display = 'none';
-        messageInput.focus();
-    })
+  if (data.username) {
+    username = data.username;
+    hideModal();
+    connectSocket();
+  } else {
+    showModal();
+  }
 }
 
-// Receive messages
-socket.on("chat-message", (data) => {
-  const div = document.createElement("div");
-  div.classList.add("message");
+init();
 
-  div.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
-  messagesDiv.appendChild(div);
+// 2️⃣ SAVE USERNAME (HTTP)
+saveUsernameBtn.addEventListener("click", async () => {
+  const value = usernameInput.value.trim();
+  if (!value) return;
 
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  username = value;
+
+  await fetch("/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({ username }),
+  });
+
+  hideModal();
+  connectSocket();
 });
 
-socket.on("system-message", (data) => {
-  const div = document.createElement("div");
-  div.classList.add("system-message");
-  div.textContent = data.message;
+// 3️⃣ CONNECT SOCKET
+function connectSocket() {
+  socket = io();
 
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-});
+  socket.emit("set-username", username);
 
+  socket.on("system-message", addSystemMessage);
+  socket.on("chat-message", addChatMessage);
+}
 
-// Send message
+// 4️⃣ SEND MESSAGE
 sendButton.onclick = () => {
-  const message = messageInput.value;
-
-  if (!hasJoined) {
-    socket.emit("join", username);
-    hasJoined = true;
-  }
-
+  const message = messageInput.value.trim();
   if (!message) return;
 
   socket.emit("chat-message", {
     username,
-    message
+    message,
   });
 
   messageInput.value = "";
 };
 
-
-// Send on Enter
 messageInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    sendButton.click();
-  }
+  if (e.key === "Enter") sendButton.click();
 });
+
+// 5️⃣ UI HELPERS
+function addChatMessage(data) {
+  const div = document.createElement("div");
+  div.classList.add("message");
+  div.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function addSystemMessage(data) {
+  const div = document.createElement("div");
+  div.classList.add("system-message");
+  div.textContent = data.message;
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function hideModal() {
+  document.querySelector(".modal").style.display = "none";
+  document.querySelector(".modalback").style.display = "none";
+}
+
+function showModal() {
+  document.querySelector(".modal").style.display = "block";
+  document.querySelector(".modalback").style.display = "block";
+}
