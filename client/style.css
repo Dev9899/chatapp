@@ -140,6 +140,11 @@ button#send:hover {
   width: 100%;
 }
 
+div.message {
+  position: relative;
+  z-index: 1;
+}
+
 div.message span {
   display: inline-block;
   padding: 10px 15px;
@@ -167,19 +172,20 @@ div.message span#usrname {
 }
 
 button#sidemenuBtn {
-  padding: 0;
+  border: 0;
+  background-color: transparent;
   position: absolute;
   top: 20px;
   left: 20px;
 }
 
 div.sidemenu {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   padding: 10px;
   height: 100dvh;
-  width: min(80vw, 18rem);
+  width: 280px;
   background-color: #fff;
   border-radius: 0 15px 15px 0;
   box-shadow: 5px 0 15px #00000050;
