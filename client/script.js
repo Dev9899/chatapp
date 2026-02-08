@@ -1,11 +1,20 @@
 let socket;
 let username = null;
+let mySocketId = null;
 
 const messagesDiv = document.getElementById("messages");
 const messageInput = document.getElementById("message");
 const usernameInput = document.getElementById("username");
 const sendButton = document.getElementById("send");
 const saveUsernameBtn = document.getElementById("saveusernamebtn");
+const sideMenuBtn = document.getElementById('sidemenuBtn');
+const sideMenu = document.getElementById('sidemenu');
+
+sideMenuBtn.addEventListener('click', () => {
+  if (sideMenu.style.display == 'block') {
+    sideMenu.style.display = 'none';
+  } else sideMenu.style.display = 'block';
+})
 
 async function init() {
   const res = await fetch("/session", { credentials: "same-origin" });
@@ -22,7 +31,7 @@ async function init() {
 
 init();
 
-saveUsernameBtn.addEventListener("click", async () => {
+const saveUsernameLogic = async () => {
   const value = usernameInput.value.trim();
   if (!value) return;
 
@@ -37,25 +46,35 @@ saveUsernameBtn.addEventListener("click", async () => {
 
   hideModal();
   connectSocket();
+};
+
+saveUsernameBtn.addEventListener("click", saveUsernameLogic);
+
+usernameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    saveUsernameLogic();
+  }
 });
 
 function connectSocket() {
   socket = io();
 
-  socket.emit("set-username", username);
+  socket.on("connect", () => {
+    mySocketId = socket.id;
+    socket.emit("set-username", username);
+  });
 
   socket.on("system-message", addSystemMessage);
   socket.on("chat-message", addChatMessage);
 }
 
 sendButton.onclick = () => {
+  if (!socket) return;
+
   const message = messageInput.value.trim();
   if (!message) return;
 
-  socket.emit("chat-message", {
-    username,
-    message,
-  });
+  socket.emit("chat-message", { message });
 
   messageInput.value = "";
 };
@@ -67,7 +86,22 @@ messageInput.addEventListener("keypress", (e) => {
 function addChatMessage(data) {
   const div = document.createElement("div");
   div.classList.add("message");
-  div.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
+
+  if (data.senderId === mySocketId) {
+    div.classList.add("sentmsg");
+    div.innerHTML = `
+      <span id="msg">${data.message}</span>
+    `;
+
+  } else {
+    div.classList.add("receivedmsg");
+    div.innerHTML = `
+      <span id="usrname">${data.username}</span>
+      <span id="msg">${data.message}</span>
+    `;
+  }
+
+
   messagesDiv.appendChild(div);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
