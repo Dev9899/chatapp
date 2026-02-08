@@ -167,6 +167,7 @@ div.message span#usrname {
 }
 
 button#sidemenuBtn {
+  padding: 0;
   position: absolute;
   top: 20px;
   left: 20px;
