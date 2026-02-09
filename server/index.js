@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const http = require("http");
+const { SocketAddress } = require("net");
 const path = require("path");
 const { Server } = require("socket.io");
 
@@ -77,6 +78,23 @@ io.on("connection", (socket) => {
       });
     }
   });
+
+  socket.on("typing", () => {
+  if (!socket.username) return;
+
+    socket.broadcast.emit("typing", {
+      username: socket.username,
+    });
+  });
+
+  socket.on("stop-typing", () => {
+    if (!socket.username) return;
+
+    socket.broadcast.emit("stop-typing", {
+    username: socket.username,
+  });
+});
+
 });
 
 const PORT = process.env.PORT || 3000;

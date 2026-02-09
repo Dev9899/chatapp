@@ -1,6 +1,8 @@
 let socket;
 let username = null;
 let mySocketId = null;
+let isTyping = false;
+let typingUsers = new Set();
 
 const messagesDiv = document.getElementById("messages");
 const messageInput = document.getElementById("message");
@@ -9,12 +11,44 @@ const sendButton = document.getElementById("send");
 const saveUsernameBtn = document.getElementById("saveusernamebtn");
 const sideMenuBtn = document.getElementById('sidemenuBtn');
 const sideMenu = document.getElementById('sidemenu');
+const typingIndicator = document.querySelector('.indicator');
+let typingTimeout;
 
-sideMenuBtn.addEventListener('click', () => {
-  if (sideMenu.style.display == 'block') {
-    sideMenu.style.display = 'none';
-  } else sideMenu.style.display = 'block';
-})
+// sideMenuBtn.addEventListener('click', () => {
+//   if (sideMenu.style.display == 'block') {
+//     sideMenu.style.display = 'none';
+//   } else sideMenu.style.display = 'block';
+// })
+
+function updateTypingIndicator() {
+  if (typingUsers.size === 0) {
+    typingIndicator.style.display = 'none';
+    typingIndicator.textContent = "";
+  } else if (typingUsers.size === 1) {
+    const name = [...typingUsers][0];
+    typingIndicator.style.display = 'block';
+    typingIndicator.textContent = `${name} is typing...`;
+  } else {
+    typingIndicator.style.display = 'block';
+    typingIndicator.textContent = `Multiple people are typing...`;
+  }
+}
+
+messageInput.addEventListener("input", () => {
+  if (!socket) return;
+
+  if (!isTyping) {
+    isTyping = true;
+    socket.emit("typing");
+  }
+
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    isTyping = false;
+    socket.emit("stop-typing");
+  }, 1000);
+});
+
 
 async function init() {
   const res = await fetch("/session", { credentials: "same-origin" });
@@ -43,7 +77,7 @@ const saveUsernameLogic = async () => {
     credentials: "same-origin",
     body: JSON.stringify({ username }),
   });
-
+  
   hideModal();
   connectSocket();
 };
@@ -58,10 +92,20 @@ usernameInput.addEventListener("keydown", (e) => {
 
 function connectSocket() {
   socket = io();
-
+  
   socket.on("connect", () => {
     mySocketId = socket.id;
     socket.emit("set-username", username);
+  });
+
+  socket.on("typing", ({ username }) => {
+    typingUsers.add(username);
+    updateTypingIndicator();
+  });
+  
+  socket.on("stop-typing", ({ username }) => {
+    typingUsers.delete(username);
+    updateTypingIndicator();
   });
 
   socket.on("system-message", addSystemMessage);
@@ -75,6 +119,7 @@ sendButton.onclick = () => {
   if (!message) return;
 
   socket.emit("chat-message", { message });
+  socket.emit("stop-typing");
 
   messageInput.value = "";
 };

@@ -7,24 +7,23 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <div class="sidemenu" id="sidemenu">
+        <!-- <div class="sidemenu" id="sidemenu">
             <br><br><br>
             <h2>Things are yet to come here</h2>
-        </div>
+        </div> -->
         <button id="sidemenuBtn">
             <img src="ico/menu.png" width="30px" height="30px">
         </button>
         <div id="chat">
             <div id="messages"></div>
-
+            <div class="indicator">Typing...</div>
+            <div class="modalback"></div>
+            <div class="modal">
+                <span>Enter your name: </span><br>
+                <input id="username" placeholder="Your name" /><br>
+                <button id="saveusernamebtn">Next</button>
+            </div>
             <div id="input-area">
-                <div class="modalback"></div>
-                <div class="modal">
-                    <span>Enter your name: </span><br>
-                    <input id="username" placeholder="Your name" /><br>
-                    <button id="saveusernamebtn">Next</button>
-                </div>
-
                 <input id="message" placeholder="Type a message..." />
                 <button id="send">
                     <img id="arrowupimg" src="ico/right-up.png" alt="send" draggable="false" />
@@ -32,7 +31,6 @@
             </div>
         </div>
     </body>
-    <!-- Socket.IO client -->
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script src="script.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="script.js"></script>
 </html>

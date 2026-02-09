@@ -4,7 +4,7 @@
 
 body {
   font-family: Arial, sans-serif;
-  background: #f0f0f0;
+  background: #0cabc4;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,11 +14,12 @@ body {
 }
 
 #chat {
-  background: white;
+  background: #0567a8;
+  box-shadow: inset 0 0 10px #00000070;
   width: 100%;
   max-width: 900px;
   height: 97dvh;
-  border-radius: 8px;
+  border-radius: 25px;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -43,7 +44,7 @@ body {
 
 .system-message {
   text-align: center;
-  color: #666;
+  color: #f2f2f2;
   font-size: 0.9em;
   margin: 5px 0;
 }
@@ -57,19 +58,19 @@ body {
   flex: 1;
   padding: 8px 12px;
   font-size: 16px;
-  border-radius: 50px;
-  border: 3px #109eff solid;
+  border-radius: 20px;
+  border: 3px transparent solid;
   outline: 0;
   transition: 0.4s;
 }
 
 #input-area input#message:focus {
-  border-radius: 10px;
+  border-color: #109eff;
   box-shadow: 0 0 10px #00000050;
-  background-color: #109eff20;
 }
 
-button {
+button#send {
+  position: relative;
   background-color: #fff;
   height: 50px;
   width: 50px;
@@ -104,7 +105,7 @@ button#send:hover {
 
 .modal {
   position: fixed;
-  background-color: #109eff;
+  background-color: #0a70b4;
   padding: 20px;
   width: 90%;
   max-width: 320px;
@@ -150,6 +151,7 @@ div.message span {
   padding: 10px 15px;
   border-radius: 20px;
   background-color: #109eff;
+  color: #f2f2f2;
   max-width: 70%;
   word-wrap: break-word;
 }
@@ -193,6 +195,13 @@ div.sidemenu {
   display: none;
 }
 
+.indicator {
+  display: none;
+  text-align: center;
+  color: #666;
+  margin-bottom: 10px;
+}
+
 @keyframes menuopening {
   from {
     left: -18rem;
@@ -205,7 +214,7 @@ div.sidemenu {
 @media (max-width: 768px) {
   #chat {
     max-width: 100%;
-    border-radius: 0;
+    border-radius: 15;
   }
 
   div.message span {
