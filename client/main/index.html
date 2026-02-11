@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chat App</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="sidemenu" id="sidemenu">
+            <div class="menuItems">
+                <div class="input-wrapper">
+                    <input id="roomidinput" placeholder="Enter room ID to join" />
+                    <button id="joinroombtn">
+                        <img src="../ico/join.png" width="20px" height="20px">
+                    </button>
+                </div>
+                <br><br>
+                <div class="input-wrapper">
+                    <input id="userroomId" disabled placeholder="Your room ID" value="Your Room ID" />
+                    <button id="copyroomidbtn">
+                        <img src="../ico/copy.png" width="20px" height="20px">
+                    </button>
+                </div>
+                <button id="leaveroombtn">Leave Room</button>
+            </div>
+        </div>
+        <button id="sidemenuBtn">
+            <img src="../ico/menu.png" width="30px" height="30px">
+        </button>
+        <div id="chat">
+            <div id="messages"></div>
+            <div class="indicator">Typing...</div>
+            <div id="input-area">
+                <input id="message" placeholder="Type a message..." />
+                <button id="send">
+                    <img id="arrowupimg" src="../ico/right-up.png" alt="send" draggable="false" />
+                </button>
+            </div>
+        </div>
+    </body>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="script.js"></script>
+</html>

@@ -1,24 +1,70 @@
 let socket;
-let username = null;
+let username = localStorage.getItem("username");
+let roomId = localStorage.getItem("room");
 let mySocketId = null;
+let senderId = null;
 let isTyping = false;
 let typingUsers = new Set();
 
 const messagesDiv = document.getElementById("messages");
 const messageInput = document.getElementById("message");
-const usernameInput = document.getElementById("username");
+const roomIdInput = document.getElementById('roomid');
+const roomIdInput2 = document.getElementById('roomidinput');
+const joinRoomBtn = document.getElementById('joinroombtn');
+const copyRoomIdBtn = document.getElementById('copyroomidbtn');
+const leaveRoomBtn = document.getElementById('leaveroombtn');
 const sendButton = document.getElementById("send");
-const saveUsernameBtn = document.getElementById("saveusernamebtn");
 const sideMenuBtn = document.getElementById('sidemenuBtn');
 const sideMenu = document.getElementById('sidemenu');
 const typingIndicator = document.querySelector('.indicator');
 let typingTimeout;
 
-// sideMenuBtn.addEventListener('click', () => {
-//   if (sideMenu.style.display == 'block') {
-//     sideMenu.style.display = 'none';
-//   } else sideMenu.style.display = 'block';
-// })
+async function init() {
+  const res = await fetch("/session", { credentials: "same-origin" });
+  const data = await res.json();
+
+  if (data.username) username = data.username;
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!roomId) roomId = urlParams.get("room");
+
+  if (!roomId || !username) {
+    window.location.href = "../home/index.html";
+    return;
+  }
+
+  socket = io();
+  connectSocket();
+}
+
+init();
+
+sideMenuBtn.addEventListener('click', () => {
+  if (sideMenu.style.display == 'block') {
+    sideMenu.style.display = 'none';
+  } else sideMenu.style.display = 'block';
+});
+
+function addChatMessage(data) {
+  console.log('Received message:', data);
+  const div = document.createElement("div");
+  div.classList.add("message");
+
+  if (data.senderId === mySocketId) {
+    div.classList.add("sentmsg");
+    div.innerHTML = `
+      <span id="msg">${data.message}</span>
+    `;
+
+  } else {
+    div.classList.add("receivedmsg");
+    div.innerHTML = `
+      <span id="usrname">${data.username}</span>
+      <span id="msg">${data.message}</span>
+    `;
+  }
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 
 function updateTypingIndicator() {
   if (typingUsers.size === 0) {
@@ -49,22 +95,6 @@ messageInput.addEventListener("input", () => {
   }, 1000);
 });
 
-
-async function init() {
-  const res = await fetch("/session", { credentials: "same-origin" });
-  const data = await res.json();
-
-  if (data.username) {
-    username = data.username;
-    hideModal();
-    connectSocket();
-  } else {
-    showModal();
-  }
-}
-
-init();
-
 const saveUsernameLogic = async () => {
   const value = usernameInput.value.trim();
   if (!value) return;
@@ -77,27 +107,17 @@ const saveUsernameLogic = async () => {
     credentials: "same-origin",
     body: JSON.stringify({ username }),
   });
-  
-  hideModal();
   connectSocket();
 };
 
-saveUsernameBtn.addEventListener("click", saveUsernameLogic);
-
-usernameInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    saveUsernameLogic();
-  }
-});
-
 function connectSocket() {
-  socket = io();
   
   socket.on("connect", () => {
     mySocketId = socket.id;
     socket.emit("set-username", username);
+    socket.emit("join-room", roomId);
   });
-
+  
   socket.on("typing", ({ username }) => {
     typingUsers.add(username);
     updateTypingIndicator();
@@ -114,10 +134,13 @@ function connectSocket() {
 
 sendButton.onclick = () => {
   if (!socket) return;
-
+  
   const message = messageInput.value.trim();
-  if (!message) return;
-
+  if (!message) {
+    return
+  };
+  
+  console.log('Sending message:', messageInput.value);
   socket.emit("chat-message", { message });
   socket.emit("stop-typing");
 
@@ -128,29 +151,6 @@ messageInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendButton.click();
 });
 
-function addChatMessage(data) {
-  const div = document.createElement("div");
-  div.classList.add("message");
-
-  if (data.senderId === mySocketId) {
-    div.classList.add("sentmsg");
-    div.innerHTML = `
-      <span id="msg">${data.message}</span>
-    `;
-
-  } else {
-    div.classList.add("receivedmsg");
-    div.innerHTML = `
-      <span id="usrname">${data.username}</span>
-      <span id="msg">${data.message}</span>
-    `;
-  }
-
-
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
 function addSystemMessage(data) {
   const div = document.createElement("div");
   div.classList.add("system-message");
@@ -159,12 +159,14 @@ function addSystemMessage(data) {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function hideModal() {
-  document.querySelector(".modal").style.display = "none";
-  document.querySelector(".modalback").style.display = "none";
-}
+joinRoomBtn.addEventListener('click', () => {
+  const newRoomId = roomIdInput2.value.trim();
+  if (!newRoomId) return;
+  window.location.search = `?room=${newRoomId}`;
+})
 
-function showModal() {
-  document.querySelector(".modal").style.display = "block";
-  document.querySelector(".modalback").style.display = "block";
-}
+leaveRoomBtn.addEventListener('click', () => {
+  if (!socket) return;
+  socket.emit("leave-room");
+  window.location.search = "";
+})

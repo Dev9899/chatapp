@@ -116,7 +116,7 @@ button#send:hover {
   z-index: 11;
 }
 
-.modal input#username {
+.modal input {
   outline: none;
   margin-top: 10px;
   width: 100%;
@@ -125,9 +125,14 @@ button#send:hover {
   padding: 8px 10px;
   transition: 0.3s;
   font-size: 16px;
+  margin-top: 2px;
 }
 
-.modal input#username:focus {
+.modal span {
+  margin-left: 5px;
+}
+
+.modal input:focus {
   box-shadow: 0 0 10px #00000050;
   border-radius: 10px;
 }
@@ -193,6 +198,37 @@ div.sidemenu {
   box-shadow: 5px 0 15px #00000050;
   animation: menuopening 0.5s cubic-bezier(0.47, 0, 0.745, 0.715);
   display: none;
+}
+
+div.sidemenu .menuItems {
+  margin-top: 70px;
+}
+
+div.sidemenu .menuItems input {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  border: 3px #0d6ba9 solid;
+  outline: none;
+  padding-right: 40px;
+}
+
+.input-wrapper button {
+  position: absolute;
+  right: 3px;
+  top: 40%;
+  padding: 3px 12px;
+  transform: translateY(-50%);
+  border: none;
+  border-radius: 20px;
+  background-color: #109eff;
+  cursor: pointer;
+}
+
+div.sidemenu .input-wrapper {
+  position: relative;
+  width: 100%;
 }
 
 .indicator {

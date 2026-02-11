@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chat App</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #0cabc4;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100dvh;
+                margin: 0;
+                padding: 10px;
+                overflow: hidden;
+            }
+            #chat {
+                background: #0567a8;
+                color: #fff;
+                text-align: center;
+                box-shadow: inset 0 0 10px #00000070;
+                width: 100%;
+                max-width: 900px;
+                height: 90dvh;
+                border-radius: 25px;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+            }
+            div#inputs {
+                text-align: left;
+                align-self: center;
+            }
+            #inputs input {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                margin-top: 5px;
+            }
+            #inputs input {
+                flex: 1;
+                padding: 8px 12px;
+                font-size: 16px;
+                border-radius: 20px;
+                border: 3px transparent solid;
+                outline: 0;
+                transition: 0.4s;
+            }
+
+            #inputs input:focus {
+                border-color: #109eff;
+                box-shadow: 0 0 10px #00000050;
+            }
+            #inputs button {
+                cursor: pointer;
+                border: 3px #0d6ba9 solid;
+                border-radius: 50px;
+                margin-top: 10px;
+                padding: 8px 12px;
+                width: 100%;
+            }
+            #inputs span {
+                margin-left: 7px;
+            }
+            #input-wrapper {
+                position: relative;
+            }
+            #input-wrapper button {
+                position: absolute;
+                right: -25px;
+                top: 23%;
+                transform: translateY(-50%);
+                width: auto;
+                padding: 0 16px;
+                border: 3px #0d6ba9 solid;
+                background-color: #0d6ba9;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="chat">
+            <div id="greeting">
+                <h1>Welcome</h1>
+                <p>Join a room or create a new one to start chatting!</p>
+            </div><br><br>
+            <div id="inputs">
+                <span>Enter your name:</span><br>
+                <input type="text" id="username" placeholder="Your name" /><br><br>
+                <span>Enter room ID:</span><br>
+                <div id="input-wrapper">
+                    <input type="text" id="room" placeholder="Room ID" maxlength="8" /><br>
+                    <button id="joinroombtn">
+                        <img src="../ico/join.png" width="25px" height="25px" alt="join">
+                    </button><br>
+                </div>
+                <center><h2>Or</h2></center>
+                <center style="font-weight: bold; font-size: 20px;">Create a room</center><br>
+                <span>Your Room ID:</span><br>
+                <input type="text" id="ownRoom" readonly value="DD565EWOP" /><br>
+                <button id="createroombtn">Copy and continue</button>
+            </div>
+        </div>
+    </body>
+    <script>
+        const joinBtn = document.getElementById("joinroombtn");
+        const createBtn = document.getElementById("createroombtn");
+        const usernameInput = document.getElementById("username");
+        const roomInput = document.getElementById("room");
+        const ownRoomInput = document.getElementById("ownRoom");
+        const generateRoomId = () => {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+        ownRoomInput.value = generateRoomId();
+
+        joinBtn.addEventListener("click", async () => {
+            const username = usernameInput.value.trim();
+            const room = roomInput.value.trim();
+
+
+            if (!username || !room) {
+                alert("Please enter both username and room ID.");
+                return;
+            }
+
+            const res = await fetch("/room", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin", 
+                body: JSON.stringify({ roomId: room }),
+            });
+
+            const data = await res.json();
+            if (!data.ok) {
+                alert("Failed to create room");
+                return;
+            }
+
+            localStorage.setItem("username", username);
+            localStorage.setItem("room", room);
+
+            window.location.href = "/main?room=" + room;
+        });
+
+        createBtn.addEventListener("click", async () => {
+            const username = usernameInput.value.trim();
+            const room = ownRoomInput.value.trim();
+
+            if (!username) {
+                alert("Please enter your username.");
+                return;
+            }
+
+            window.navigator.clipboard.writeText(room).then(() => {
+                return;
+            }).catch(() => {
+                alert("Failed to copy Room ID. Please copy it manually: " + room);
+            });
+
+            const res = await fetch("/room", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin", 
+                body: JSON.stringify({ roomId: room }),
+            });
+
+            const data = await res.json();
+            if (!data.ok) {
+                alert("Failed to create room");
+                return;
+            }
+
+            localStorage.setItem("username", username);
+            localStorage.setItem("room", room);
+
+            window.location.href = "/main?room=" + room;
+        });
+
+    </script>
+</html>

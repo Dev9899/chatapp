@@ -1,0 +1,11 @@
+#chat {
+  background: #0567a8;
+  box-shadow: inset 0 0 10px #00000070;
+  width: 100%;
+  max-width: 900px;
+  height: 97dvh;
+  border-radius: 25px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
