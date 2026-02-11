@@ -5,6 +5,7 @@ const http = require("http");
 const path = require("path");
 const { Server } = require("socket.io");
 const { captureRejectionSymbol } = require("events");
+const authorizedRooms = new Set();
 
 const app = express();
 app.set("trust proxy", 1);
@@ -47,10 +48,26 @@ app.post("/room", (req, res) => {
   if (!roomId) {
     return res.status(400).json({ error: "Room ID is required" });
   }
+  if (authorizedRooms.has(roomId)) {
+    return res.status(400).json({ error: "Room already exists" });
+  } 
+    authorizedRooms.add(roomId);
+  console.log(`Authorized rooms: ${[...authorizedRooms].join(", ")}`);
 
   rooms.add(roomId);
   res.json({ ok: true, roomId });
 });
+
+app.get("/room/:roomId", (req, res) => {
+  const { roomId } = req.params;
+
+  if (!authorizedRooms.has(roomId)) {
+    return res.status(404).json({ ok: false, error: "Room does not exist" });
+  }
+
+  res.json({ ok: true });
+});
+
 
 app.use(express.static(path.join(__dirname, "../client")));
 
@@ -94,6 +111,13 @@ io.on("connection", (socket) => {
     if (!socket.username) return;
     if (!roomId) return;
     if (!rooms.has(roomId)) return;
+    if (!authorizedRooms.has(roomId)) {
+      socket.emit("error-message", {
+        message: "Room does not exist or you are not authorized to join",
+      });
+      console.log(authorizedRooms, rooms);
+      return;
+    }
 
     socket.join(roomId);
     socket.roomId = roomId;

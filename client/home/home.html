@@ -125,21 +125,18 @@
                 return;
             }
 
-            const res = await fetch("/room", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "same-origin", 
-                body: JSON.stringify({ roomId: room }),
-            });
+            const res = await fetch(`/room/${room}`);
 
-            const data = await res.json();
-            if (!data.ok) {
-                alert("Failed to create room");
+            if(!res.ok) {
+                alert("Room not found. Please check the Room ID and try again.");
                 return;
             }
 
             localStorage.setItem("username", username);
             localStorage.setItem("room", room);
+
+            roomInput.value = "";
+            usernameInput.value = "";
 
             window.location.href = "/main?room=" + room;
         });
@@ -174,6 +171,9 @@
 
             localStorage.setItem("username", username);
             localStorage.setItem("room", room);
+
+            usernameInput.value = "";
+            roomInput.value = "";
 
             window.location.href = "/main?room=" + room;
         });

@@ -8,7 +8,6 @@ let typingUsers = new Set();
 
 const messagesDiv = document.getElementById("messages");
 const messageInput = document.getElementById("message");
-const roomIdInput = document.getElementById('roomid');
 const roomIdInput2 = document.getElementById('roomidinput');
 const joinRoomBtn = document.getElementById('joinroombtn');
 const copyRoomIdBtn = document.getElementById('copyroomidbtn');
@@ -28,7 +27,7 @@ async function init() {
   if (!roomId) roomId = urlParams.get("room");
 
   if (!roomId || !username) {
-    window.location.href = "../home/index.html";
+    window.location.href = "/";
     return;
   }
 
@@ -128,6 +127,11 @@ function connectSocket() {
     updateTypingIndicator();
   });
 
+  socket.on("error-message", ({ message }) => {
+    alert(message);
+    window.location.href = "../";
+  });
+
   socket.on("system-message", addSystemMessage);
   socket.on("chat-message", addChatMessage);
 }
@@ -159,14 +163,41 @@ function addSystemMessage(data) {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-joinRoomBtn.addEventListener('click', () => {
+joinRoomBtn.addEventListener('click', async () => {
   const newRoomId = roomIdInput2.value.trim();
   if (!newRoomId) return;
-  window.location.search = `?room=${newRoomId}`;
+  const currentRoom = localStorage.getItem("room");
+  
+  if (currentRoom == newRoomId) {
+    alert("You are already in this room.");
+    return;
+  }
+  
+  try {
+    const res = await fetch(`/room/${newRoomId}`);
+
+    if (!res.ok) {
+      alert("Room not found. Please check the Room ID and try again.");
+      return;
+    }
+    localStorage.setItem("username", username);
+    localStorage.setItem("room", newRoomId);
+
+    window.location.href = `/main?room=${newRoomId}`;
+  } catch (err) {
+    console.error("Error joining room:", err);
+    alert("An error occurred while trying to join the room. Please try again.");
+  }
+
+  window.location.href = `/main?room=${newRoomId}`;
 })
 
 leaveRoomBtn.addEventListener('click', () => {
   if (!socket) return;
   socket.emit("leave-room");
-  window.location.search = "";
+  window.location.href = "/";
+  if(localStorage.getItem("username") || localStorage.getItem("room")) {
+    localStorage.removeItem("username");
+    localStorage.removeItem("room");
+  }a
 })
