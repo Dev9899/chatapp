@@ -27,9 +27,26 @@
             <div class="indicator">Typing...</div>
             <div id="input-area">
                 <input id="message" placeholder="Type a message..." />
+                <button id="gifbtn">
+                    <img src="../ico/gif.png" width="25px" height="25px" id="gifbtn">
+                </button>
                 <button id="send">
                     <img id="arrowupimg" src="../ico/right-up.png" alt="send" draggable="false" />
                 </button>
+            </div>
+            <div id="gifModal" class="gif-modal hidden">
+                <div class="gif-modal-content">
+                    <div class="gif-header">
+                        <input 
+                        type="text" 
+                        id="gifSearch" 
+                        placeholder="Search GIFs..."
+                        autocomplete="off"
+                        />
+                        <button id="closeGifModal">✖</button>
+                    </div>
+                    <div id="gifResults" class="gif-results"></div>
+                </div>
             </div>
         </div>
     </body>

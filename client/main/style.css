@@ -70,7 +70,8 @@ body {
   box-shadow: 0 0 10px #00000050;
 }
 
-button#send {
+button#send,
+button#gifbtn {
   position: relative;
   background-color: #fff;
   height: 50px;
@@ -79,11 +80,13 @@ button#send {
   cursor: pointer;
   border-radius: 50%;
   border: 3px #109eff solid;
+  box-shadow: 0 0 50px #00000050;
   text-align: center;
   transition: 0.4s;
 }
 
-button#send:hover {
+button#send:hover,
+button#gifbtn:hover {
   background-color: #109eff;
   box-shadow: 0 0 10px #00000050;
 }
@@ -124,6 +127,11 @@ div.message span#usrname {
   margin-top: -12px;
   margin-left: 10px;
   background-color: transparent;
+}
+
+div.message img.gif {
+  max-width: 15rem;
+  border-radius: 12px;
 }
 
 button#sidemenuBtn {
@@ -200,6 +208,73 @@ button#leaveroombtn {
 button#leaveroombtn:hover {
   background-color: #ff1a1a;
   box-shadow: 0 0 10px #00000050;
+}
+
+.gif-modal {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 350px;
+  height: 400px;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.hidden {
+  display: none;
+}
+
+.gif-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.gif-header {
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.gif-header input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+
+.gif-header button {
+  margin-left: 8px;
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.gif-results {
+  flex: 1;
+  padding: 8px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+.gif-item {
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.gif-item:hover {
+  transform: scale(1.05);
 }
 
 @keyframes menuopening {

@@ -6,6 +6,10 @@ const path = require("path");
 const { Server } = require("socket.io");
 const { captureRejectionSymbol } = require("events");
 const authorizedRooms = new Set();
+const { type } = require("os");
+require("dotenv").config();
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const app = express();
 app.set("trust proxy", 1);
@@ -52,7 +56,6 @@ app.post("/room", (req, res) => {
     return res.status(400).json({ error: "Room already exists" });
   } 
     authorizedRooms.add(roomId);
-  console.log(`Authorized rooms: ${[...authorizedRooms].join(", ")}`);
 
   rooms.add(roomId);
   res.json({ ok: true, roomId });
@@ -68,6 +71,52 @@ app.get("/room/:roomId", (req, res) => {
   res.json({ ok: true });
 });
 
+const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
+
+app.get("/api/gifs/search", async (req, res) => {
+  const query = req.query.q;
+
+  if (!query) {
+    return res.status(400).json({ error: "Search query required" });
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=20&rating=g`
+    );
+    const data = await response.json();
+
+    const gifs = data.data.map(gif => ({
+      preview: gif.images.fixed_height.url,
+      original: gif.images.original.url,
+    }));
+
+    res.json(gifs);
+  } catch (err) {
+    console.error("Giphy API error:", err);
+    res.status(500).json({ error: "Failed to fetch GIFs" });
+  }
+});
+
+app.get("/api/gifs/trending", async (req, res) => {
+  try {
+    const response = await fetch(
+      `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=20&rating=g`
+    );
+    
+    const data = await response.json();
+
+    const gifs = data.data.map(gif => ({
+      preview: gif.images.fixed_height.url,
+      original: gif.images.original.url,
+    }));
+
+    res.json(gifs);
+  } catch (err) {
+    console.error("Giphy API error:", err);
+    res.status(500).json({ error: "Failed to fetch trending GIFs" });
+  }
+});
 
 app.use(express.static(path.join(__dirname, "../client")));
 
@@ -102,8 +151,6 @@ io.on("connection", (socket) => {
         console.error("Error saving session:", err);
         return
       }
-
-      console.log("Session saved with username:", session.username);
     });
   });
 
@@ -115,7 +162,6 @@ io.on("connection", (socket) => {
       socket.emit("error-message", {
         message: "Room does not exist or you are not authorized to join",
       });
-      console.log(authorizedRooms, rooms);
       return;
     }
 
@@ -129,12 +175,13 @@ io.on("connection", (socket) => {
     socket.emit("joined-room", roomId);
   });
 
-  socket.on("chat-message", ({ message }) => {
+  socket.on("chat-message", ({ message, type }) => {
     if (!socket.username || !socket.roomId) return;
 
     io.to(socket.roomId).emit("chat-message", {
       username: socket.username,
       message,
+      type: type || "text",
       senderId: socket.id,
     });
   });

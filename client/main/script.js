@@ -16,6 +16,12 @@ const sendButton = document.getElementById("send");
 const sideMenuBtn = document.getElementById('sidemenuBtn');
 const sideMenu = document.getElementById('sidemenu');
 const typingIndicator = document.querySelector('.indicator');
+const gifBtn = document.getElementById("gifbtn");
+const gifModal = document.getElementById("gifModal");
+const closeGifModal = document.getElementById("closeGifModal");
+const gifSearch = document.getElementById("gifSearch");
+const resultsContainer = document.getElementById("gifResults");
+
 let typingTimeout;
 
 async function init() {
@@ -44,22 +50,32 @@ sideMenuBtn.addEventListener('click', () => {
 });
 
 function addChatMessage(data) {
-  console.log('Received message:', data);
   const div = document.createElement("div");
   div.classList.add("message");
 
   if (data.senderId === mySocketId) {
+    if (data.type === "gif") {
+      div.classList.add("sentmsg");
+      div.innerHTML = `<img class="gif" src="${data.message}" alt="GIF">`;
+    } else {
     div.classList.add("sentmsg");
     div.innerHTML = `
       <span id="msg">${data.message}</span>
     `;
-
+    }
   } else {
+    if (data.type === "gif") {
+      div.classList.add("receivedmsg");
+      div.innerHTML = `
+      <span id="usrname">${data.username}</span><br><img class="gif" src="${data.message}" alt="GIF">
+      `;
+    } else {
     div.classList.add("receivedmsg");
     div.innerHTML = `
       <span id="usrname">${data.username}</span>
       <span id="msg">${data.message}</span>
     `;
+    }
   }
   messagesDiv.appendChild(div);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -109,6 +125,88 @@ const saveUsernameLogic = async () => {
   connectSocket();
 };
 
+async function searchGifs(query) {
+  try {
+    const res = await fetch(`/api/gifs/search?q=${encodeURIComponent(query)}`);
+    return await res.json();
+  } catch (err) {
+    console.error("Error searching GIFs:", err);
+    return { error: "Failed to search GIFs" };
+  }
+}
+
+async function loadTrendingGifs() {
+  try {
+    const res = await fetch(`/api/gifs/search?q=trending`);
+    return await res.json();
+  } catch (err) {
+    console.error("Error loading trending GIFs:", err);
+    return { error: "Failed to load trending GIFs" };
+  }
+}
+
+const sendGifMessage = (gifUrl) => {
+  if (!socket) return;
+  socket.emit("chat-message", {
+    message: gifUrl, 
+    type: "gif" 
+  });
+};
+
+gifBtn.addEventListener("click", async () => {
+  gifModal.classList.remove("hidden");
+
+  const gifs = await loadTrendingGifs();
+  displayGifs(gifs);
+});
+
+closeGifModal.addEventListener("click", () => {
+  gifModal.classList.add("hidden");
+});
+
+window.addEventListener("click", (e) => {
+  if (e.target === gifModal) {
+    gifModal.classList.add("hidden");
+  }
+});
+
+function displayGifs(gifs) {
+  resultsContainer.innerHTML = "";
+
+  gifs.forEach(gif => {
+    const img = document.createElement("img");
+    img.src = gif.preview;
+    img.classList.add("gif-item");
+
+    img.addEventListener("click", () => {
+      sendGifMessage(gif.original);
+    });
+
+    resultsContainer.appendChild(img);
+  });
+}
+
+let timeout;
+
+gifSearch.addEventListener("input", () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(async () => {
+    const query = gifSearch.value.trim();
+
+    if (!query) {
+      const gifs = await loadTrendingGifs();
+      displayGifs(gifs);
+      return;
+    }
+
+    const gifs = await searchGifs(query);
+    displayGifs(gifs);
+
+  }, 400);
+});
+
+
 function connectSocket() {
   
   socket.on("connect", () => {
@@ -143,8 +241,7 @@ sendButton.onclick = () => {
   if (!message) {
     return
   };
-  
-  console.log('Sending message:', messageInput.value);
+
   socket.emit("chat-message", { message });
   socket.emit("stop-typing");
 
