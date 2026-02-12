@@ -25,6 +25,12 @@ body {
   flex-direction: column;
 }
 
+div.greetdiv {
+  text-align: center;
+  color: #f2f2f2;
+  margin-bottom: 20px;
+}
+
 #messages {
   flex: 1;
   padding: 8px;
@@ -101,7 +107,7 @@ div.message {
   z-index: inherit;
 }
 
-div.message span {
+div.message span#msg {
   display: inline-block;
   padding: 10px 15px;
   border-radius: 20px;
@@ -115,11 +121,12 @@ div.message.sentmsg {
   text-align: end;
 }
 
-div.message.sentmsg span {
+div.message.sentmsg span#msg {
   background-color: #f0f0f0;
 }
 
-div.message span#usrname {
+div.message span#usrname,
+span#timestamp {
   color: #f2f2f2;
   position: absolute;
   font-size: 10px;
@@ -127,6 +134,16 @@ div.message span#usrname {
   margin-top: -12px;
   margin-left: 10px;
   background-color: transparent;
+}
+
+div.message.sentmsg span#timestamp {
+  margin-top: 5px;
+  margin-left: -50px;
+}
+
+div.message.receivedmsg span#timestamp {
+  margin-top: 5px;
+  margin-left: 10px;
 }
 
 div.message img.gif {

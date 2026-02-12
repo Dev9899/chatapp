@@ -52,28 +52,39 @@ sideMenuBtn.addEventListener('click', () => {
 function addChatMessage(data) {
   const div = document.createElement("div");
   div.classList.add("message");
+  const time = new Date(data.time);
+  const hours = time.getHours().toString().padStart(2, '0');
+  const minutes = time.getMinutes().toString().padStart(2, '0');
+  const formattedTime = `${hours}:${minutes}`;
 
   if (data.senderId === mySocketId) {
     if (data.type === "gif") {
       div.classList.add("sentmsg");
-      div.innerHTML = `<img class="gif" src="${data.message}" alt="GIF">`;
+      div.innerHTML = `
+      <img class="gif" src="${data.message}" alt="GIF"><br>
+      <span id="timestamp">${formattedTime}</span>
+      `;
     } else {
     div.classList.add("sentmsg");
     div.innerHTML = `
-      <span id="msg">${data.message}</span>
+      <span id="msg">${data.message}</span><br>
+      <span id="timestamp">${formattedTime}</span>
     `;
     }
   } else {
     if (data.type === "gif") {
       div.classList.add("receivedmsg");
       div.innerHTML = `
-      <span id="usrname">${data.username}</span><br><img class="gif" src="${data.message}" alt="GIF">
+      <span id="usrname">${data.username}</span><br>
+      <img class="gif" src="${data.message}" alt="GIF"><br>
+      <span id="timestamp">${formattedTime}</span>
       `;
     } else {
     div.classList.add("receivedmsg");
     div.innerHTML = `
       <span id="usrname">${data.username}</span>
-      <span id="msg">${data.message}</span>
+      <span id="msg">${data.message}</span><br>
+      <span id="timestamp">${formattedTime}</span>
     `;
     }
   }
@@ -234,6 +245,10 @@ function connectSocket() {
   socket.on("chat-message", addChatMessage);
 }
 
+document.getElementById('fhj').textContent = `
+  Share the room ID ${roomId} with your friends to start chatting.
+`;
+
 sendButton.onclick = () => {
   if (!socket) return;
   
@@ -293,6 +308,7 @@ leaveRoomBtn.addEventListener('click', () => {
   if (!socket) return;
   socket.emit("leave-room");
   window.location.href = "/";
+  window.location.reload();
   if(localStorage.getItem("username") || localStorage.getItem("room")) {
     localStorage.removeItem("username");
     localStorage.removeItem("room");

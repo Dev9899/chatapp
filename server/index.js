@@ -199,6 +199,7 @@ io.on("connection", (socket) => {
       message,
       type: type || "text",
       senderId: socket.id,
+      time: new Date().toISOString(),
     });
   });
 
