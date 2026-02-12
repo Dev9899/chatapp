@@ -8,10 +8,13 @@
     </head>
     <body>
         <div id="chat">
-            <div class="greetdiv">
-                <h1>Start Chatting.</h1>
-                <P id="fhj">Share the room ID with your friends to start chatting.</P>
-                <hr>
+            <div class="header">
+                <p id="roomiddisplay">Room ID: <span id="roomidvalue">N/A</span></p>
+                <p id="usercount">2 People in this room</p>
+                <span id="systemmsg"></span>
+                <button id="leaveroombtn">
+                    <img src="../ico/exit-room.png" alt="Leave Room" width="20px" height="20px">
+                </button>
             </div>
             <div id="messages"></div>
             <div class="indicator">Typing...</div>
@@ -48,7 +51,6 @@
                     </button>
                 </div>
                 <br><br>
-                <button id="leaveroombtn">Leave Room</button>
             </div>
         </div>
         <button id="sidemenuBtn">

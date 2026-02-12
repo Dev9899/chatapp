@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 * {
   box-sizing: border-box;
 }
@@ -13,7 +15,43 @@ body {
   padding: 10px;
 }
 
+div.header {
+  position: sticky;
+  width: calc(100% + 21px);
+  height: 6rem;
+  background-color: #00000050;
+  color: #f2f2f2;
+  margin: -10px;
+  padding: 0 50px;
+  border-radius: 25px 25px 0 0;
+  backdrop-filter: blur(10px);
+  box-shadow: 5px 0 20px #00000050;
+  z-index: 999;
+  /* line-height: .5rem; */
+}
+
+div.header p#roomiddisplay {
+  font-size: 1.2em;
+  font-weight: 700;
+  margin-bottom: -10px;
+}
+
+div.header p#usercount {
+  font-size: 0.9em;
+  color: #f2f2f280;
+}
+
+div.header span#systemmsg {
+  position: absolute;
+  display: inline-block;
+  font-size: 1em;
+  color: #f2f2f2c9;
+  right: 50%; top: 50%;
+  transform: translateX(50%) translateY(-50%);
+}
+
 #chat {
+  font-family: 'Outfit', sans-serif;
   background: #0567a8;
   box-shadow: inset 0 0 10px #00000070;
   width: 100%;
@@ -36,6 +74,11 @@ div.greetdiv {
   padding: 8px;
   overflow-y: auto;
   margin-bottom: 10px;
+  margin-top: -80px;
+  margin-left: -10px;
+  margin-right: -10px;
+  margin-bottom: 10px;
+  border-radius: 20px;
   word-wrap: break-word;
   -webkit-overflow-scrolling: touch;
 }
@@ -105,12 +148,19 @@ button#gifbtn:hover {
 div.message {
   position: relative;
   z-index: inherit;
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+#messages > :first-child {
+  padding-top: 90px;
 }
 
 div.message span#msg {
   display: inline-block;
   padding: 10px 15px;
-  border-radius: 20px;
+  padding-bottom: 15px;
+  border-radius: 15px;
   background-color: #109eff;
   max-width: 70%;
   word-wrap: break-word;
@@ -122,7 +172,7 @@ div.message.sentmsg {
 }
 
 div.message.sentmsg span#msg {
-  background-color: #f0f0f0;
+  background-color: #f2f2ff;
 }
 
 div.message span#usrname,
@@ -137,13 +187,17 @@ span#timestamp {
 }
 
 div.message.sentmsg span#timestamp {
-  margin-top: 5px;
-  margin-left: -50px;
+  /* margin-top: 5px; */
+  margin-left: -35px;
+  color: #7b7474;
+  font-size: 8px;
 }
 
 div.message.receivedmsg span#timestamp {
-  margin-top: 5px;
-  margin-left: 10px;
+  margin-top: -13px;
+  margin-left: 12px;
+  font-size: 8px;
+  color: #333;
 }
 
 div.message img.gif {
@@ -219,8 +273,11 @@ button#leaveroombtn {
   border: 3px #ff1a1a solid;
   border-radius: 50px;
   padding: 8px 12px;
-  width: 100%;
   cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   transition: .4s;
 }
 

@@ -168,7 +168,6 @@ io.on("connection", (socket) => {
     } else {
       const currentCount = roomUserCounts.get(roomId) || 0;
       socket.to(roomId).emit("system-message", {
-        message: `${socket.username} is trying to join the room...`,
         totalUsers: currentCount,
       });
       roomUserCounts.set(roomId, currentCount + 1);
@@ -179,6 +178,9 @@ io.on("connection", (socket) => {
         message: "You are the only user in this room. Share the room ID to invite others!",
       });
     }
+    socket.emit("room-user-count", {
+      totalUsers: roomUserCounts.get(roomId) || 0,
+    });
     console.log(roomUserCounts);
 
     socket.join(roomId);
@@ -228,11 +230,9 @@ io.on("connection", (socket) => {
     const currentCount = roomUserCounts.get(socket.roomId) || 0;
     const newCount = currentCount - 1;
     roomUserCounts.set(socket.roomId, newCount);
-    console.log(`Total Users before disconnect: ${currentCount}, after disconnect: ${newCount}`);
-    console.log(`total rooms before deletion: ${[...rooms].join(", ")}`);
     if(newCount <= 1) {
       socket.to(socket.roomId).emit("system-message", {
-        message: "You are the only user left in this room. Share the room ID to invite others.\nRoom will be deleted when the last user leaves.",
+        message: "You are the only user left in this room. Room will be deleted when the last user leaves.",
       });
     } 
     if (newCount <= 0) {

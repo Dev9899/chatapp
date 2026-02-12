@@ -21,6 +21,8 @@ const gifModal = document.getElementById("gifModal");
 const closeGifModal = document.getElementById("closeGifModal");
 const gifSearch = document.getElementById("gifSearch");
 const resultsContainer = document.getElementById("gifResults");
+const roomIdDisplay = document.getElementById("roomiddisplay");
+const roomUserCountDisplay = document.getElementById("usercount");
 
 let typingTimeout;
 
@@ -42,6 +44,8 @@ async function init() {
 }
 
 init();
+
+roomIdDisplay.innerHTML = `Room ID: <span style="margin-left: 5px;">${roomId}</span>`;
 
 sideMenuBtn.addEventListener('click', () => {
   if (sideMenu.style.display == 'block') {
@@ -226,6 +230,10 @@ function connectSocket() {
     socket.emit("join-room", roomId);
   });
   
+  socket.on("room-user-count", ({ totalUsers }) => {
+    roomUserCountDisplay.textContent = totalUsers === 1 ? "1 Person in this room" : `${totalUsers} People in this room`;
+  });
+  
   socket.on("typing", ({ username }) => {
     typingUsers.add(username);
     updateTypingIndicator();
@@ -244,10 +252,6 @@ function connectSocket() {
   socket.on("system-message", addSystemMessage);
   socket.on("chat-message", addChatMessage);
 }
-
-document.getElementById('fhj').textContent = `
-  Share the room ID ${roomId} with your friends to start chatting.
-`;
 
 sendButton.onclick = () => {
   if (!socket) return;
@@ -268,11 +272,10 @@ messageInput.addEventListener("keypress", (e) => {
 });
 
 function addSystemMessage(data) {
-  const div = document.createElement("div");
+  const div = document.getElementById("systemmsg");
   div.classList.add("system-message");
   div.textContent = data.message;
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  setTimeout(() => {div.textContent = ""; }, 3000);
 }
 
 joinRoomBtn.addEventListener('click', async () => {
