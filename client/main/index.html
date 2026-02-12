@@ -7,21 +7,6 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <div class="sidemenu" id="sidemenu">
-            <div class="menuItems">
-                <div class="input-wrapper">
-                    <input id="roomidinput" placeholder="Enter room ID to join" maxlength="8" minlength="8" autocomplete="off"/>
-                    <button id="joinroombtn">
-                        <img src="../ico/join.png" width="20px" height="20px">
-                    </button>
-                </div>
-                <br><br>
-                <button id="leaveroombtn">Leave Room</button>
-            </div>
-        </div>
-        <button id="sidemenuBtn">
-            <img src="../ico/menu.png" width="30px" height="30px">
-        </button>
         <div id="chat">
             <div id="messages"></div>
             <div class="indicator">Typing...</div>
@@ -49,6 +34,21 @@
                 </div>
             </div>
         </div>
+        <div class="sidemenu" id="sidemenu">
+            <div class="menuItems">
+                <div class="input-wrapper">
+                    <input id="roomidinput" placeholder="Enter room ID to join" maxlength="8" minlength="8" autocomplete="off"/>
+                    <button id="joinroombtn">
+                        <img src="../ico/join.png" width="20px" height="20px">
+                    </button>
+                </div>
+                <br><br>
+                <button id="leaveroombtn">Leave Room</button>
+            </div>
+        </div>
+        <button id="sidemenuBtn">
+            <img src="../ico/menu.png" width="30px" height="30px">
+        </button>
     </body>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="script.js"></script>

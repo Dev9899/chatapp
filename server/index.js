@@ -6,6 +6,7 @@ const path = require("path");
 const { Server } = require("socket.io");
 const { captureRejectionSymbol } = require("events");
 const authorizedRooms = new Set();
+const roomUserCounts = new Map(); // Track users per room
 const { type } = require("os");
 require("dotenv").config();
 const fetch = (...args) =>
@@ -55,7 +56,8 @@ app.post("/room", (req, res) => {
   if (authorizedRooms.has(roomId)) {
     return res.status(400).json({ error: "Room already exists" });
   } 
-    authorizedRooms.add(roomId);
+  authorizedRooms.add(roomId);
+  roomUserCounts.set(roomId, 0); // Initialize user count for new room
 
   rooms.add(roomId);
   res.json({ ok: true, roomId });
@@ -82,7 +84,7 @@ app.get("/api/gifs/search", async (req, res) => {
 
   try {
     const response = await fetch(
-      `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=20&rating=g`
+      `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=21&rating=g`
     );
     const data = await response.json();
 
@@ -163,7 +165,21 @@ io.on("connection", (socket) => {
         message: "Room does not exist or you are not authorized to join",
       });
       return;
+    } else {
+      const currentCount = roomUserCounts.get(roomId) || 0;
+      socket.to(roomId).emit("system-message", {
+        message: `${socket.username} is trying to join the room...`,
+        totalUsers: currentCount,
+      });
+      roomUserCounts.set(roomId, currentCount + 1);
+    };
+
+    if((roomUserCounts.get(roomId) || 0) <= 1) {
+      socket.emit("system-message", {
+        message: "You are the only user in this room. Share the room ID to invite others!",
+      });
     }
+    console.log(roomUserCounts);
 
     socket.join(roomId);
     socket.roomId = roomId;
@@ -208,6 +224,22 @@ io.on("connection", (socket) => {
     socket.to(socket.roomId).emit("system-message", {
       message: `${socket.username} left the room`,
     });
+    const currentCount = roomUserCounts.get(socket.roomId) || 0;
+    const newCount = currentCount - 1;
+    roomUserCounts.set(socket.roomId, newCount);
+    console.log(`Total Users before disconnect: ${currentCount}, after disconnect: ${newCount}`);
+    console.log(`total rooms before deletion: ${[...rooms].join(", ")}`);
+    if(newCount <= 1) {
+      socket.to(socket.roomId).emit("system-message", {
+        message: "You are the only user left in this room. Share the room ID to invite others.\nRoom will be deleted when the last user leaves.",
+      });
+    } 
+    if (newCount <= 0) {
+      roomUserCounts.delete(socket.roomId);
+      authorizedRooms.delete(socket.roomId);
+      rooms.delete(socket.roomId);
+      console.log(`Room ${socket.roomId} deleted due to inactivity`);
+    }
   });
 });
 

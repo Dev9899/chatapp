@@ -15,7 +15,7 @@ body {
 
 #chat {
   background: #0567a8;
-  box-shadow: inset 0 0 50px #00000070;
+  box-shadow: inset 0 0 10px #00000070;
   width: 100%;
   max-width: 900px;
   height: 97dvh;
@@ -98,7 +98,7 @@ button#gifbtn:hover {
 
 div.message {
   position: relative;
-  z-index: 1;
+  z-index: inherit;
 }
 
 div.message span {
@@ -140,6 +140,7 @@ button#sidemenuBtn {
   position: absolute;
   top: 20px;
   left: 20px;
+  z-index: 1001;
 }
 
 div.sidemenu {
@@ -154,6 +155,7 @@ div.sidemenu {
   box-shadow: 5px 0 15px #00000050;
   animation: menuopening 0.5s cubic-bezier(0.47, 0, 0.745, 0.715);
   display: none;
+  z-index: 1000;
 }
 
 div.sidemenu .menuItems {
@@ -216,9 +218,9 @@ button#leaveroombtn:hover {
   right: 20px;
   width: 350px;
   height: 400px;
-  background: #1e1e1e;
+  background: #109eff;
   border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
   display: flex;
   flex-direction: column;
   z-index: 999;
